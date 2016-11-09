@@ -6,6 +6,7 @@ from flask import url_for
 
 UPLOAD_FOLDER = 'upload'
 SECRET_KEY = 'M0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+ALLOWED_EXTENSION = ['jpg', 'gif', 'png']
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -26,12 +27,6 @@ def list_files():
     return ret
 
 
-def save_file(datafile, filename):
-    f = open(UPLOAD_FOLDER + filename , 'wb')
-    f.write(datafile)
-    f.close()
-
-
 @app.route('/')
 def main():
     return render_template('basic.html')
@@ -39,11 +34,6 @@ def main():
 
 @app.route('/download/<path:filename>')
 def download(filename):
-    return send_from_directory(directory=UPLOAD_FOLDER, filename=filename)
-
-
-@app.route('/thumbnail/<path:filename>')
-def thumbnail(filename):
     return send_from_directory(directory=UPLOAD_FOLDER, filename=filename)
 
 
@@ -68,13 +58,12 @@ def upload():
 
         file_size = get_file_size(file_name)
         file_url = url_for('download', filename=file_name)
-        thumbnail_url = url_for('thumbnail', filename=file_name)
 
         file_info = {
             "name" : file_name,
             "size" : file_size,
             "url"  : file_url,
-            "thumbnail" : thumbnail_url
+            "minetype" :  data_file.content_type
         }
         return jsonify(files = [file_info])
 
